@@ -1,0 +1,9 @@
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root { --brand:#2563eb; --accent:#10b981; }
+body { @apply bg-white text-gray-900; }
+.card { @apply bg-gray-50 border border-gray-200 rounded-2xl p-4; }
+.big-btn { @apply text-lg p-4 border-2 rounded-xl w-full hover:bg-white active:scale-95 transition; }
