@@ -17,7 +17,7 @@ export default function LoginPage() {
     })
 
     if (loginError) {
-     setMsg(❌ خطأ: ${loginError.message})
+      setMsg(❌ خطأ: ${loginError.message})
       return
     }
 
