@@ -5,13 +5,13 @@ import { supabase } from '@/lib/supabaseClient'
 export default function LoginPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [role, setRole] = useState('student') // الدور الذي يختاره المستخدم
+  const [role, setRole] = useState('student') // الدور الافتراضي
   const [msg, setMsg] = useState('')
 
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault()
 
-    // تسجيل الدخول في Supabase
+    // تسجيل الدخول عبر Supabase
     const { data: loginData, error: loginError } = await supabase.auth.signInWithPassword({
       email,
       password
@@ -28,12 +28,13 @@ export default function LoginPage() {
       return
     }
 
+    // اختيار الجدول بناءً على الدور
     let tableName = ''
     if (role === 'student') tableName = 'students'
     if (role === 'teacher') tableName = 'teachers'
     if (role === 'parent') tableName = 'parents'
 
-    // التحقق من أن المستخدم موجود في الجدول الذي يخص دوره
+    // التحقق من وجود المستخدم في الجدول المناسب
     const { data: roleData, error: roleError } = await supabase
       .from(tableName)
       .select('id')
