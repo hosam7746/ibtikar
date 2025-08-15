@@ -5,13 +5,12 @@ import { supabase } from '@/lib/supabaseClient'
 export default function LoginPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [role, setRole] = useState('student') // الدور الافتراضي
+  const [role, setRole] = useState('student')
   const [msg, setMsg] = useState('')
 
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault()
 
-    // تسجيل الدخول عبر Supabase
     const { data: loginData, error: loginError } = await supabase.auth.signInWithPassword({
       email,
       password
@@ -28,13 +27,11 @@ export default function LoginPage() {
       return
     }
 
-    // اختيار الجدول بناءً على الدور
     let tableName = ''
     if (role === 'student') tableName = 'students'
     if (role === 'teacher') tableName = 'teachers'
     if (role === 'parent') tableName = 'parents'
 
-    // التحقق من وجود المستخدم في الجدول المناسب
     const { data: roleData, error: roleError } = await supabase
       .from(tableName)
       .select('id')
@@ -48,7 +45,6 @@ export default function LoginPage() {
 
     setMsg(✅ تم تسجيل الدخول كـ ${role === 'student' ? 'طالب' : role === 'teacher' ? 'معلم' : 'ولي أمر'})
 
-    // التوجيه حسب الدور
     if (role === 'student') {
       window.location.href = '/student-dashboard'
     } else if (role === 'teacher') {
@@ -77,7 +73,6 @@ export default function LoginPage() {
           required
         /><br />
 
-        {/* اختيار الدور */}
         <select value={role} onChange={(e) => setRole(e.target.value)}>
           <option value="student">طالب</option>
           <option value="teacher">معلم</option>
