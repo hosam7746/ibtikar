@@ -5,24 +5,21 @@ import { supabase } from '@/lib/supabaseClient'
 export default function LoginPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [role, setRole] = useState('student')
   const [msg, setMsg] = useState('')
 
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault()
-
-    // تسجيل الدخول
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password
     })
-
     if (error) {
-      setMsg(❌ خطأ: ${error.message})
-      return
+      setMsg(`❌ خطأ: ${error.message}`)
+    } else {
+      setMsg('✅ تم تسجيل الدخول بنجاح')
+      console.log(data)
+      window.location.href = '/dashboard'
     }
-
-    setMsg(✅ تم تسجيل الدخول كـ ${role})
   }
 
   return (
@@ -43,13 +40,6 @@ export default function LoginPage() {
           onChange={(e) => setPassword(e.target.value)}
           required
         /><br />
-
-        <select value={role} onChange={(e) => setRole(e.target.value)}>
-          <option value="student">طالب</option>
-          <option value="teacher">معلم</option>
-          <option value="parent">ولي أمر</option>
-        </select><br />
-
         <button type="submit">دخول</button>
       </form>
       {msg && <p>{msg}</p>}
