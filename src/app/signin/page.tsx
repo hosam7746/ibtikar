@@ -5,20 +5,52 @@ import { supabase } from '@/lib/supabaseClient'
 export default function LoginPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [role, setRole] = useState('student')
   const [msg, setMsg] = useState('')
 
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault()
-    const { data, error } = await supabase.auth.signInWithPassword({
+
+    const { data: loginData, error: loginError } = await supabase.auth.signInWithPassword({
       email,
       password
     })
-    if (error) {
-      setMsg(`❌ خطأ: ${error.message}`)
+
+    if (loginError) {
+      setMsg(❌ خطأ: ${loginError.message})
+      return
+    }
+
+    const userId = loginData.user?.id
+    if (!userId) {
+      setMsg('❌ لم يتم العثور على بيانات المستخدم')
+      return
+    }
+
+    let tableName = ''
+    if (role === 'student') tableName = 'students'
+    if (role === 'teacher') tableName = 'teachers'
+    if (role === 'parent') tableName = 'parents'
+
+    const { data: roleData, error: roleError } = await supabase
+      .from(tableName)
+      .select('id')
+      .eq('user_id', userId)
+      .single()
+
+    if (roleError || !roleData) {
+      setMsg(❌ هذا الحساب غير مسجل كـ ${role === 'student' ? 'طالب' : role === 'teacher' ? 'معلم' : 'ولي أمر'})
+      return
+    }
+
+    setMsg(✅ تم تسجيل الدخول كـ ${role === 'student' ? 'طالب' : role === 'teacher' ? 'معلم' : 'ولي أمر'})
+
+    if (role === 'student') {
+      window.location.href = '/student-dashboard'
+    } else if (role === 'teacher') {
+      window.location.href = '/teacher-dashboard'
     } else {
-      setMsg('✅ تم تسجيل الدخول بنجاح')
-      console.log(data)
-      window.location.href = '/dashboard'
+      window.location.href = '/parent-dashboard'
     }
   }
 
@@ -40,6 +72,14 @@ export default function LoginPage() {
           onChange={(e) => setPassword(e.target.value)}
           required
         /><br />
+
+        {/* اختيار الدور */}
+        <select value={role} onChange={(e) => setRole(e.target.value)}>
+          <option value="student">طالب</option>
+          <option value="teacher">معلم</option>
+          <option value="parent">ولي أمر</option>
+        </select><br />
+
         <button type="submit">دخول</button>
       </form>
       {msg && <p>{msg}</p>}
