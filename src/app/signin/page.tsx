@@ -11,47 +11,18 @@ export default function LoginPage() {
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault()
 
-    const { data: loginData, error: loginError } = await supabase.auth.signInWithPassword({
+    // تسجيل الدخول
+    const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password
     })
 
-    if (loginError) {
-      setMsg(❌ خطأ: ${loginError.message})
+    if (error) {
+      setMsg(❌ خطأ: ${error.message})
       return
     }
 
-    const userId = loginData.user?.id
-    if (!userId) {
-      setMsg('❌ لم يتم العثور على بيانات المستخدم')
-      return
-    }
-
-    let tableName = ''
-    if (role === 'student') tableName = 'students'
-    if (role === 'teacher') tableName = 'teachers'
-    if (role === 'parent') tableName = 'parents'
-
-    const { data: roleData, error: roleError } = await supabase
-      .from(tableName)
-      .select('id')
-      .eq('user_id', userId)
-      .single()
-
-    if (roleError || !roleData) {
-      setMsg(❌ هذا الحساب غير مسجل كـ ${role === 'student' ? 'طالب' : role === 'teacher' ? 'معلم' : 'ولي أمر'})
-      return
-    }
-
-    setMsg(✅ تم تسجيل الدخول كـ ${role === 'student' ? 'طالب' : role === 'teacher' ? 'معلم' : 'ولي أمر'})
-
-    if (role === 'student') {
-      window.location.href = '/student-dashboard'
-    } else if (role === 'teacher') {
-      window.location.href = '/teacher-dashboard'
-    } else {
-      window.location.href = '/parent-dashboard'
-    }
+    setMsg(✅ تم تسجيل الدخول كـ ${role})
   }
 
   return (
@@ -73,7 +44,6 @@ export default function LoginPage() {
           required
         /><br />
 
-        {/* اختيار الدور */}
         <select value={role} onChange={(e) => setRole(e.target.value)}>
           <option value="student">طالب</option>
           <option value="teacher">معلم</option>
